@@ -12,6 +12,7 @@ void setup() {
     pinMode(4, INPUT); //latch closed
     
     //making changes for github
+    
 }
 
 int timer = 0; 
