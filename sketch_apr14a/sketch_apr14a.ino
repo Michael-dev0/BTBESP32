@@ -26,6 +26,7 @@ void setup() {
 
 }
 
+//I could make a class for these rather than have them as global variables but for the scale of this its not a big deal
 
 //I cant declare these the way our lord and savior James Plank prefers I think i'll switch to vim
 State s = OPEN;
