@@ -31,11 +31,13 @@ void setup() {
 //I cant declare these the way our lord and savior James Plank prefers I think i'll switch to vim
 State s = OPEN;
 
-int timer = 0;
+unsigned long startTime = 0;
+
+unsigned long timer = 0;
 int goal = 0;
 int mode = 0;
 int pulse = 0;
-int failtime = 0;
+unsigned long failtime = 0;
 
 //Bool will be 1 when the case is shut
 bool latched = 0;
@@ -48,10 +50,10 @@ void timeSelection()
 
   if(!pulse && digitalRead(timercontrolpin))
   {
-    pulse = 1; 
+    pulse = 250; 
   }
   
-  if(pulse)
+  if(pulse == 250)
   {
     if(mode == 3)
     {
@@ -61,6 +63,10 @@ void timeSelection()
     {
       mode++;
     }
+  }
+  else if(pulse > 0) 
+  {
+    pulse--;
   }
 
   //times 1000 to convert seconds to milleseconds
@@ -75,20 +81,21 @@ void timeSelection()
  *
  * ANIMATIONS WILL GO IN THIS METHOD comments specify which sequence where
  * in order for you as the animator to extract the time 
- * use the timer variable and divide by 1000 to get seconds 
+ * use the timer and divide by 1000 to get seconds 
  * it is integer division i wouldnt think that would be a problem but it can change if you need it
  *
  * also if you just want to make a method that plays each animation I can integrate them where they need to go
 */
 void stateMachine()
 {
+  unsigned long now = millis();
   //was open now closed
   if(s == OPEN && latched)
   {
     s = CLOSED;
 
     //start timer
-    timer = 0;
+    startTime = now;
 
     //play beginning animation
 
@@ -99,20 +106,20 @@ void stateMachine()
     s = OPEN;
 
     //end and reset timer
-    failtime = timer;
-    timer = -1; 
+    failtime = now - startTime;
+    startTime = 0;
 
     //play failure animation
 
   }
   //timer is completed
-  if(s == CLOSED && timer == goal)
+  if(s == CLOSED && (now - startTime) >= (unsigned long)goal)
   {
     s = DONE;
   }
 
   //done and start again
-  if(s == DONE);
+  if(s == DONE)
   {
     //play success animation
 
@@ -136,12 +143,12 @@ void loop() {
 
   latched = digitalRead(latchpin);
 
-  if(s == OPEN) timeSelection;
+  if(s == OPEN) timeSelection();
 
   stateMachine();
 
   //timer < goal just to help prevent errors if i made a mistake
-  if(timer != -1 && timer < goal) timer++;
+  if(s == CLOSED) timer = millis() - startTime;
 
 }
 
